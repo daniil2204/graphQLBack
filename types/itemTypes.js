@@ -6,7 +6,6 @@ const ReviewItem = new GraphQLObjectType({
     fields: () => ({
         username: { type: GraphQLString },
         text: { type: GraphQLString },
-        userID: { type:GraphQLID }
     })
 })
 
@@ -22,3 +21,4 @@ module.exports = new GraphQLObjectType({
 
     })
 })
+

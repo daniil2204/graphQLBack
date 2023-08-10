@@ -4,6 +4,7 @@ const User = require('../models/User.js')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const checkAdmin = require('../utils/checkAdmin')
+const checkAuth = require('../utils/checkAuth')
 
 
 const { GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLError, GraphQLNonNull,GraphQLID } = graphql;
@@ -23,10 +24,9 @@ module.exports = new GraphQLObjectType({
                 title: { type: new GraphQLNonNull(GraphQLString) },
                 price: { type: new GraphQLNonNull(GraphQLInt) },
                 imageUrl: { type: new GraphQLNonNull(GraphQLString) },
-                token: { type: new GraphQLNonNull(GraphQLString) },
             },      
-            async resolve(parent,args) {
-                if(await checkAdmin(args.token)) {
+            async resolve(parent,args,contextValue) {
+                if(await checkAdmin((contextValue.headers.authorization).split(" ")[1])) {
                     const item = new Item({
                         title: args.title,
                         price: args.price,
@@ -40,50 +40,68 @@ module.exports = new GraphQLObjectType({
                 
             }
         },
+        updateItem: {
+            type: GraphQLString,
+            args: { 
+                id: { type: new GraphQLNonNull(GraphQLID) } ,
+                title: { type: GraphQLString },
+                price: { type: GraphQLInt },
+                imageUrl: { type: GraphQLString },
+            },
+            async resolve(parent,args,contextValue) {
+                if(await checkAdmin((contextValue.headers.authorization).split(" ")[1])) {
+                    const item = await Item.updateOne({
+                        _id:args.id
+                    }, {
+                        ...args
+                    },);
+                    if(item) return "Item was modified";
+                    else return new GraphQLError("Item not found");
+                } else {
+                    return new GraphQLError("Error");
+                }
+            }
+        },
         deleteItem: {
             type:ItemType,
             args: { 
                 id: { type: new GraphQLNonNull(GraphQLID) } 
             },
-            async resolve(parent,args) {
-                const user = await User.find
-                const item = await Item.findByIdAndRemove(args.id)
-                if(item) return item;
-                else return new GraphQLError("Item not found");
+            async resolve(parent,args,contextValue) {
+                if(await checkAdmin((contextValue.headers.authorization).split(" ")[1])) {
+                    const item = await Item.findByIdAndRemove(args.id)
+                    if(item) return item;
+                    else return new GraphQLError("Item not found");
+                } else {
+                    return new GraphQLError("Error");
+                }
             }
         },
         addReviewToItem: {
-            type:ItemType,
+            type:GraphQLString,
             args: {
                 text: { type: new GraphQLNonNull(GraphQLString) },
                 id: { type: new GraphQLNonNull(GraphQLID) },
-                userID: { type: new GraphQLNonNull(GraphQLID) },
             },
-            async resolve(parent,args) {
-
-                const user = await User.findById(args.userID);
+            async resolve(parent,args,contextValue) {
+                const user = await checkAuth((contextValue.headers.authorization).split(" ")[1]);
                 if(user){
-                    const item = await Item.findById(args.id);
-                    if(item) {
-                        const review = {
-                            username: user.username,
-                            text: args.text,
-                            userID: args.userID
-                        }
-        
-                        item.reviews.push(review);
-        
-                        return item.save();
-                    } else {
-                        return new GraphQLError("Item not found");
+                    const review = {
+                        username: user.username,
+                        text: args.text,
                     }
+                    const item = await Item.findById(args.id);
+                    const newItem = await Item.updateOne({
+                        _id:args.id
+                    }, {
+                        reviews: [...item.reviews,review]
+                    },);
+                    if(newItem) return "Review was added";
+                    else return new GraphQLError("Review was not added");
                     
                 } else{
-                    return new GraphQLError("User not found");
-                }
-
-                
-                
+                    return new GraphQLError("User not auth");
+                }              
             }
         },
         register: {
@@ -144,12 +162,9 @@ module.exports = new GraphQLObjectType({
 
                     user.token = token;
 
-                    return {
-                        id: user.id,
-                        ...user._doc,
-                    }
+                    return user;
                 }else{
-                    return new GraphQLError("Wrong password or login")
+                    return new GraphQLError("Wrong email or password")
                 }
             }
         }

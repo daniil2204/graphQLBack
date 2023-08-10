@@ -13,8 +13,8 @@ module.exports = new GraphQLObjectType({
         getItemById: {
             type: ItemType,
             args: { id: { type: new GraphQLNonNull(GraphQLID) } },
-            resolve(parent,args) {
-                const item = Item.findById(args.id);
+            async resolve(parent,args) {
+                const item = await Item.findById(args.id);
                 if(item){
                     return item; 
                 }else return new GraphQLError("Item not found");
@@ -23,8 +23,8 @@ module.exports = new GraphQLObjectType({
         getItems: {
             type: new GraphQLList(ItemType),
             args: {},
-            resolve(parent,args) {
-                return Item.find({});
+            async resolve(parent,args) {
+                return await Item.find({});
             }
         }
     }
