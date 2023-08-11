@@ -1,17 +1,21 @@
-const graphql = require('graphql');
-const Item = require('../models/Item.js')
-const User = require('../models/User.js')
+const graphql = require('graphql')
+
+const Item = require('../models/Item')
+const User = require('../models/User')
+const Category = require('../models/Category')
+
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+
 const checkAdmin = require('../utils/checkAdmin')
 const checkAuth = require('../utils/checkAuth')
 
 
-const { GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLError, GraphQLNonNull,GraphQLID } = graphql;
+const { GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLError, GraphQLNonNull,GraphQLID, GraphQLList } = graphql;
 
 const UserType = require('../types/userTypes');
 const ItemType = require('../types/itemTypes');
-
+const CategoryType = require('../types/categoryTypes');
 
 
 
@@ -24,13 +28,15 @@ module.exports = new GraphQLObjectType({
                 title: { type: new GraphQLNonNull(GraphQLString) },
                 price: { type: new GraphQLNonNull(GraphQLInt) },
                 imageUrl: { type: new GraphQLNonNull(GraphQLString) },
+                category: { type: new GraphQLNonNull(new GraphQLList(GraphQLString)) },
             },      
             async resolve(parent,args,contextValue) {
                 if(await checkAdmin((contextValue.headers.authorization).split(" ")[1])) {
                     const item = new Item({
                         title: args.title,
                         price: args.price,
-                        imageUrl: args.imageUrl
+                        imageUrl: args.imageUrl,
+                        category: args.category
                     })
                     return item.save();
                 } else {
@@ -166,6 +172,45 @@ module.exports = new GraphQLObjectType({
                 }else{
                     return new GraphQLError("Wrong email or password")
                 }
+            }
+        },
+        addNewCategory: {
+            type:CategoryType,
+            args: {
+                category: { type: new GraphQLNonNull(GraphQLString) },
+                categories: { type: new GraphQLList(GraphQLString) },
+            },
+            async resolve(parent,args,contextValue) {
+                if(await checkAdmin((contextValue.headers.authorization).split(" ")[1])) {
+                    const category = new Category({
+                        category: args.category,
+                        categories: args.categories,
+                    })
+                    return category.save();
+                } else {
+                    return new GraphQLError("Error");
+                }           
+            }
+        },
+        addNewItemToCategory: {
+            type:GraphQLString,
+            args: {
+                category: { type: new GraphQLNonNull(GraphQLString) },
+                categories: { type: new GraphQLNonNull(new GraphQLList(GraphQLString)) },
+            },
+            async resolve(parent,args,contextValue) {
+                if(await checkAdmin((contextValue.headers.authorization).split(" ")[1])) {
+                    const prevCategory = await Category.findOne({category: args.category});
+                    const newItem = await Category.updateOne({
+                        _id:prevCategory._id
+                    }, {
+                        categories: [...prevCategory.categories,...args.categories]
+                    },);
+                    if(newItem) return "New category was added";
+                    else return new GraphQLError("New category was not added");
+                } else {
+                    return new GraphQLError("Error");
+                }           
             }
         }
     }

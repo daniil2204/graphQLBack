@@ -4,7 +4,7 @@ const schema = require('../schema/schema.js');
 const mongoose = require('mongoose');
 const { applyMiddleware } = require('graphql-middleware');
 const { shield } = require('graphql-shield');
-const { addItemValidation, registerValidation, loginValidation, addReviewToItemValidation } = require('../rules');
+const { addItemValidation, registerValidation, loginValidation, addReviewToItemValidation,addNewCategoryValidation,addNewItemToCategoryValidation } = require('../rules');
 
 
 const app = express();
@@ -19,7 +19,9 @@ const permissions = shield({
         addItem: addItemValidation,
         register: registerValidation,
         login: loginValidation,
-        addReviewToItem: addReviewToItemValidation
+        addReviewToItem: addReviewToItemValidation,
+        addNewCategory: addNewCategoryValidation,
+        addNewItemToCategory: addNewItemToCategoryValidation,
     },
 });
 

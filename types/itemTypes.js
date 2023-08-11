@@ -18,7 +18,6 @@ module.exports = new GraphQLObjectType({
         price: { type:GraphQLInt },
         imageUrl: { type:GraphQLString },
         reviews: { type: new GraphQLList(ReviewItem) },
-
     })
 })
 

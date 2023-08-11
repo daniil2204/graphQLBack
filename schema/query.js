@@ -1,11 +1,13 @@
 const graphql = require('graphql');
 const Item = require('../models/Item.js')
 const User = require('../models/User.js')
+const Category = require('../models/Category')
 
-const { GraphQLObjectType, GraphQLNonNull, GraphQLID, GraphQLList } = graphql;
+const { GraphQLObjectType, GraphQLNonNull, GraphQLID, GraphQLList,GraphQLString } = graphql;
 
 const UserType = require('../types/userTypes');
 const ItemType = require('../types/itemTypes');
+const CategoryType = require('../types/categoryTypes');
 
 module.exports = new GraphQLObjectType({
     name:'Query',
@@ -25,6 +27,31 @@ module.exports = new GraphQLObjectType({
             args: {},
             async resolve(parent,args) {
                 return await Item.find({});
+            }
+        },
+        getCategoriesByCategoryTitle: {
+            type: new GraphQLList(CategoryType),
+            args: { category : {type:new GraphQLNonNull(GraphQLString)}},
+            async resolve(parent,args) {
+                const categories = (await Category.find({})).filter(item => item.category.toLowerCase().includes(args.category.toLowerCase()));
+                return categories;
+            }
+        },
+        getItemsByCategory: {
+            type: new GraphQLList(ItemType),
+            args: { 
+                category: {type:new GraphQLNonNull(GraphQLString)}
+            },
+            async resolve(parent,args) {
+                const items = (await Item.find({})).filter(item => { 
+                    for(let i = 0;i < item.category.length; i++) {
+                        if(item.category[i].includes(args.category.toLowerCase())){
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+                return items;
             }
         }
     }

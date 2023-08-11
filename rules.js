@@ -7,6 +7,7 @@ const addItemValidation = inputRule()(
         title: yup.string().min(3,"Too short"),
         price: yup.number(),
         imageUrl: yup.string(),
+        category: yup.array(),
     }),
     { abortEarly: false },
 )
@@ -38,7 +39,24 @@ const addReviewToItemValidation = inputRule()(
     { abortEarly: false },
 )
 
+const addNewCategoryValidation = inputRule()(
+    (yup) => 
+    yup.object({
+        category: yup.string().min(3,"Too short"),
+    }),
+    { abortEarly: false },
+)
+
+const addNewItemToCategoryValidation = inputRule()(
+    (yup) => 
+    yup.object({
+        category: yup.string().min(3,"Too short"),
+        categories: yup.array(),
+    }),
+    { abortEarly: false },
+)
 
 
 
-module.exports = { addItemValidation , registerValidation, loginValidation,addReviewToItemValidation }
+
+module.exports = { addItemValidation , registerValidation, loginValidation,addReviewToItemValidation, addNewCategoryValidation, addNewItemToCategoryValidation }
