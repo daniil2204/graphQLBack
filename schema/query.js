@@ -3,7 +3,7 @@ const Item = require('../models/Item.js')
 const User = require('../models/User.js')
 const Category = require('../models/Category')
 
-const { GraphQLObjectType, GraphQLNonNull, GraphQLID, GraphQLList,GraphQLString } = graphql;
+const { GraphQLObjectType, GraphQLNonNull, GraphQLID, GraphQLList,GraphQLString, GraphQLInt } = graphql;
 
 const UserType = require('../types/userTypes');
 const ItemType = require('../types/itemTypes');
@@ -24,9 +24,12 @@ module.exports = new GraphQLObjectType({
         },
         getItems: {
             type: new GraphQLList(ItemType),
-            args: {},
+            args: {
+                offset: {type: GraphQLInt},
+                limit: {type: GraphQLInt},    
+            },
             async resolve(parent,args) {
-                return await Item.find({});
+                return await Item.find({}).skip(args.offset ? args.offset : 0).limit(args.limit ? args.limit : 10);
             }
         },
         getCategoriesByCategoryTitle: {
