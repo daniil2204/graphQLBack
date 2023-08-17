@@ -8,7 +8,7 @@ const { addItemValidation, registerValidation, loginValidation, addReviewToItemV
 
 
 const app = express();
-const PORT = 5000;
+const PORT = 5000  || process.env.PORT ;
 
 mongoose.connect('mongodb+srv://daniilfrilanc:Ddv22042004@cluster0.uewffss.mongodb.net/?retryWrites=true&w=majority')
 
