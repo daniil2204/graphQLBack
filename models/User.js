@@ -21,6 +21,14 @@ const UserSchema = new Schema({
     role: {
         type:String,
         default:'user'
+    },
+    bucket: {
+        type:Array,
+        default: []
+    },
+    phone: {
+        type: String,
+        required:true,
     }
 });
 

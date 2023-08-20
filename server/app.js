@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const { applyMiddleware } = require('graphql-middleware');
 const { shield } = require('graphql-shield');
 const { addItemValidation, registerValidation, loginValidation, addReviewToItemValidation,addNewCategoryValidation,addNewItemToCategoryValidation } = require('../rules');
+require('dotenv').config();
 
 
 const app = express();

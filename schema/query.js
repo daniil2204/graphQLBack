@@ -3,11 +3,13 @@ const Item = require('../models/Item.js')
 const User = require('../models/User.js')
 const Category = require('../models/Category')
 
-const { GraphQLObjectType, GraphQLNonNull, GraphQLID, GraphQLList,GraphQLString, GraphQLInt } = graphql;
+const { GraphQLObjectType, GraphQLNonNull, GraphQLID, GraphQLList,GraphQLString, GraphQLInt,GraphQLError } = graphql;
 
 const UserType = require('../types/userTypes');
 const ItemType = require('../types/itemTypes');
 const CategoryType = require('../types/categoryTypes');
+
+const checkAuth = require('../utils/checkAuth')
 
 module.exports = new GraphQLObjectType({
     name:'Query',
@@ -56,6 +58,14 @@ module.exports = new GraphQLObjectType({
                 });
                 return items;
             }
-        }
+        },
+        getMe: {
+            type: UserType,
+            args: { },
+            async resolve(parent,args, contextValue){
+                const user = await checkAuth((contextValue.headers.authorization).split(" ")[1]);
+                return user ? user : new GraphQLError("User not found");
+            }
+        },
     }
 })

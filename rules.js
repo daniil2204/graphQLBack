@@ -18,6 +18,7 @@ const registerValidation = inputRule()(
         username: yup.string().min(3,"Too short"),
         email: yup.string().email(),
         password: yup.string().min(3,"Too short"),
+        phone: yup.string().matches(/^039|067|068|096|097|098|050|066|095|099|063|073|093|091|048\d{9}$/,{message:'Невірний телефон'}),
     }),
     { abortEarly: false },
 )

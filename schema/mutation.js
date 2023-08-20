@@ -6,6 +6,10 @@ const Category = require('../models/Category')
 
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const { 
+    v1: uuidv1,
+    v4: uuidv4,
+} = require('uuid');
 
 const checkAdmin = require('../utils/checkAdmin')
 const checkAuth = require('../utils/checkAuth')
@@ -110,11 +114,69 @@ module.exports = new GraphQLObjectType({
                 }              
             }
         },
+        addItemToBucket: {
+            type:GraphQLString,
+            args: {
+                price: { type: new GraphQLNonNull(GraphQLInt) },
+                count: { type: new GraphQLNonNull(GraphQLInt) },
+                itemId: { type: new GraphQLNonNull(GraphQLID) },
+            },
+            async resolve(parent,args,contextValue) {
+                const user = await checkAuth((contextValue.headers.authorization).split(" ")[1]);
+                const item = await Item.findById(args.itemId);
+                if(user && item){
+                    const bucketItem = {
+                        userId: user._id,
+                        price: args.price,
+                        count: args.count,
+                        itemId: item._id,
+                    }
+                    
+                    const ItemWasAdded = user.bucket.find(itemArr => itemArr.itemId.valueOf() === item._id.valueOf());
+
+                    const changedBucket = ItemWasAdded ? {bucket: [...user.bucket.filter(bucketItem => bucketItem.itemId.valueOf() !== item._id.valueOf()),bucketItem]} : {bucket: [...user.bucket,bucketItem]}
+
+                    const userWithUpdatedBucket = await User.updateOne({
+                        _id:user._id
+                    }, {
+                        bucket: changedBucket.bucket
+                    },);
+                    
+                    
+                    if(userWithUpdatedBucket) return "Item was added to Bucket";
+                    else return new GraphQLError("Item was not added to Bucket");
+                    
+                } else{
+                    return new GraphQLError("User or Item not found");
+                }              
+            }
+        },
+        clearBucket: {
+            type:GraphQLString,
+            args: {},
+            async resolve(parent,args,contextValue) {
+                const user = await checkAuth((contextValue.headers.authorization).split(" ")[1]);
+                if(user){          
+                    const userWithUpdatedBucket = await User.updateOne({
+                        _id: user._id
+                    }, {
+                        bucket: []
+                    },);
+                      
+                    if(userWithUpdatedBucket) return "Bucket clear";
+                    else return new GraphQLError("Error");
+                    
+                } else{
+                    return new GraphQLError("User not found");
+                }              
+            }
+        },
         register: {
             type: UserType,
             args: {
                 username: { type: new GraphQLNonNull(GraphQLString) },
                 email: { type: new GraphQLNonNull(GraphQLString) },
+                phone: { type: new GraphQLNonNull(GraphQLString) },
                 password: { type: new GraphQLNonNull(GraphQLString) },
             },
             async resolve(parent,args) {
@@ -128,6 +190,7 @@ module.exports = new GraphQLObjectType({
                     username:args.username,
                     email:args.email.toLowerCase(),
                     password:encryptedPass,
+                    phone:args.phone,
                 })
 
                 const token = jwt.sign(
