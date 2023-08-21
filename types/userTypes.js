@@ -9,6 +9,7 @@ const BucketItem = new GraphQLObjectType({
         itemId: { type: GraphQLID },
         count: { type:GraphQLInt },
         imageUrl: { type:GraphQLString },
+        title: { type:GraphQLString },
     })
 })
 

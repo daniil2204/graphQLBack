@@ -117,7 +117,6 @@ module.exports = new GraphQLObjectType({
         addItemToBucket: {
             type:GraphQLString,
             args: {
-                price: { type: new GraphQLNonNull(GraphQLInt) },
                 count: { type: new GraphQLNonNull(GraphQLInt) },
                 itemId: { type: new GraphQLNonNull(GraphQLID) },
             },
@@ -125,27 +124,39 @@ module.exports = new GraphQLObjectType({
                 const user = await checkAuth((contextValue.headers.authorization).split(" ")[1]);
                 const item = await Item.findById(args.itemId);
                 if(user && item){
-                    const bucketItem = {
-                        userId: user._id,
-                        price: args.price,
-                        count: args.count,
-                        itemId: item._id,
-                        imageUrl: item.imageUrl
+                    if(args.count < 1){
+                       
+                        const userWithUpdatedBucket = await User.updateOne({
+                            _id:user._id
+                        }, {
+                            bucket: user.bucket.filter(bucketItem => bucketItem.itemId.valueOf() !== item._id.valueOf())
+                        },);
+                        
+                        if(userWithUpdatedBucket) return "Item was deleted from Bucket";
+                    }else{
+                        const bucketItem = {
+                            userId: user._id,
+                            price: item.price * args.count,
+                            count: args.count,
+                            itemId: item._id,
+                            imageUrl: item.imageUrl,
+                            title: item.title
+                        }
+                        
+                        const ItemWasAdded = user.bucket.find(itemArr => itemArr.itemId.valueOf() === item._id.valueOf());
+    
+                        const changedBucket = ItemWasAdded ? {bucket: [...user.bucket.filter(bucketItem => bucketItem.itemId.valueOf() !== item._id.valueOf()),bucketItem]} : {bucket: [...user.bucket,bucketItem]}
+    
+                        const userWithUpdatedBucket = await User.updateOne({
+                            _id:user._id
+                        }, {
+                            bucket: changedBucket.bucket
+                        },);
+                        
+                        
+                        if(userWithUpdatedBucket) return "Item was added to Bucket";
+                        else return new GraphQLError("Item was not added to Bucket");
                     }
-                    
-                    const ItemWasAdded = user.bucket.find(itemArr => itemArr.itemId.valueOf() === item._id.valueOf());
-
-                    const changedBucket = ItemWasAdded ? {bucket: [...user.bucket.filter(bucketItem => bucketItem.itemId.valueOf() !== item._id.valueOf()),bucketItem]} : {bucket: [...user.bucket,bucketItem]}
-
-                    const userWithUpdatedBucket = await User.updateOne({
-                        _id:user._id
-                    }, {
-                        bucket: changedBucket.bucket
-                    },);
-                    
-                    
-                    if(userWithUpdatedBucket) return "Item was added to Bucket";
-                    else return new GraphQLError("Item was not added to Bucket");
                     
                 } else{
                     return new GraphQLError("User or Item not found");
