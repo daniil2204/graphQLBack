@@ -130,6 +130,7 @@ module.exports = new GraphQLObjectType({
                         price: args.price,
                         count: args.count,
                         itemId: item._id,
+                        imageUrl: item.imageUrl
                     }
                     
                     const ItemWasAdded = user.bucket.find(itemArr => itemArr.itemId.valueOf() === item._id.valueOf());

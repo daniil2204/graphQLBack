@@ -8,6 +8,7 @@ const BucketItem = new GraphQLObjectType({
         price: { type:GraphQLInt },
         itemId: { type: GraphQLID },
         count: { type:GraphQLInt },
+        imageUrl: { type:GraphQLString },
     })
 })
 
