@@ -50,7 +50,7 @@ module.exports = new GraphQLObjectType({
             async resolve(parent,args) {
                 const items = (await Item.find({})).filter(item => { 
                     for(let i = 0;i < item.category.length; i++) {
-                        if(item.category[i].includes(args.category.toLowerCase())){
+                        if(item.category[i].toLowerCase().includes(args.category.toLowerCase())){
                             return true;
                         }
                     }
