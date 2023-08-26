@@ -174,7 +174,7 @@ module.exports = new GraphQLObjectType({
                 if(user){
                     const itemWasFound = user.desireItems.find(elem => elem.itemId.valueOf() === item._id.valueOf());
                     
-                    const changedDesireList = itemWasFound ? user.desireItems.filter(desireItem => desireItem.itemId.valueOf() !== item._id.valueOf()) : [...user.desireList, {
+                    const changedDesireList = itemWasFound ? user.desireItems.filter(desireItem => desireItem.itemId.valueOf() !== item._id.valueOf()) : [...user.desireItems, {
                         price: item.price,
                         itemId: item._id,
                         imageUrl: item.imageUrl,
