@@ -16,7 +16,7 @@ const DesireItem = new GraphQLObjectType({
     name:'DesireItem',
     fields: () => ({
         price: { type:GraphQLInt },
-        id: { type: GraphQLID },
+        itemId: { type: GraphQLID },
         imageUrl: { type:GraphQLString },
         title: { type:GraphQLString },
     })

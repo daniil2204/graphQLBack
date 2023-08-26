@@ -165,22 +165,19 @@ module.exports = new GraphQLObjectType({
         changeDesireList: {
             type:GraphQLString,
             args: {
-                id: { type: new GraphQLNonNull(GraphQLID) },
+                itemId: { type: new GraphQLNonNull(GraphQLID) },
             },
             async resolve(parent,args,contextValue) {
                 const user = await checkAuth((contextValue.headers.authorization).split(" ")[1]);
                 const item = await Item.findById(args.itemId);
-
                 if(user){
-                    const itemWasFound = user.desireItems.find(elem => elem.id.valueOf() === item._id.valueOf());
-                    
-                    const changedDesireList = itemWasFound ? user.desireItems.filter(desireItem => desireItem.id.valueOf() !== item._id.valueOf()) : [...user.desireItems, {
+                    const itemWasFound = user.desireItems.find(elem => elem.itemId.valueOf() === item._id.valueOf());
+                    const changedDesireList = itemWasFound ? user.desireItems.filter(desireItem => desireItem.itemId.valueOf() !== item._id.valueOf()) : [...user.desireItems, {
                         price: item.price,
-                        id: item._id,
+                        itemId: item._id,
                         imageUrl: item.imageUrl,
                         title: item.title
                     }]
-                    
                     const userWithUpdatedDesireList = await User.updateOne({
                         _id:user._id
                     }, {
