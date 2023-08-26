@@ -172,9 +172,9 @@ module.exports = new GraphQLObjectType({
                 const item = await Item.findById(args.itemId);
 
                 if(user){
-                    const itemWasFound = user.desireList.find(elem => elem.itemId.valueOf() === item._id.valueOf());
+                    const itemWasFound = user.desireItems.find(elem => elem.itemId.valueOf() === item._id.valueOf());
                     
-                    const changedDesireList = itemWasFound ? user.desireList.filter(desireItem => desireItem.itemId.valueOf() !== item._id.valueOf()) : [...user.desireList, {
+                    const changedDesireList = itemWasFound ? user.desireItems.filter(desireItem => desireItem.itemId.valueOf() !== item._id.valueOf()) : [...user.desireList, {
                         price: item.price,
                         itemId: item._id,
                         imageUrl: item.imageUrl,
@@ -184,12 +184,12 @@ module.exports = new GraphQLObjectType({
                     const userWithUpdatedDesireList = await User.updateOne({
                         _id:user._id
                     }, {
-                        desireList: changedDesireList
+                        desireItems: changedDesireList
                     },);
                     
                     
-                    if(userWithUpdatedDesireList) return "DesireList was update";
-                    else return new GraphQLError("DesireList was not update");
+                    if(userWithUpdatedDesireList) return "Desireitems was update";
+                    else return new GraphQLError("Desireitems was not update");
                 } else{
                     return new GraphQLError("User or Item not found");
                 } 

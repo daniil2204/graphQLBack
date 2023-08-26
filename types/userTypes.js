@@ -32,7 +32,7 @@ module.exports = new GraphQLObjectType({
         token: { type:GraphQLString },
         role: { type:GraphQLString },
         bucket: { type: new GraphQLList(BucketItem)},
-        desireList: { type: new GraphQLList(DesireItem)},
+        desireItems: { type: new GraphQLList(DesireItem)},
         phone: {type: GraphQLString},
     })
 })

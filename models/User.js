@@ -26,7 +26,7 @@ const UserSchema = new Schema({
         type:Array,
         default: []
     },
-    desireList: {
+    desireItems: {
         type:Array,
         default:[]
     },
