@@ -26,6 +26,10 @@ const UserSchema = new Schema({
         type:Array,
         default: []
     },
+    desireList: {
+        type:Array,
+        default:[]
+    },
     phone: {
         type: String,
         required:true,

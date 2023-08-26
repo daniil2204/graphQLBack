@@ -135,7 +135,6 @@ module.exports = new GraphQLObjectType({
                         if(userWithUpdatedBucket) return "Item was deleted from Bucket";
                     }else{
                         const bucketItem = {
-                            userId: user._id,
                             price: item.price * args.count,
                             count: args.count,
                             itemId: item._id,
@@ -161,6 +160,39 @@ module.exports = new GraphQLObjectType({
                 } else{
                     return new GraphQLError("User or Item not found");
                 }              
+            }
+        },
+        changeDesireList: {
+            type:GraphQLString,
+            args: {
+                itemId: { type: new GraphQLNonNull(GraphQLID) },
+            },
+            async resolve(parent,args,contextValue) {
+                const user = await checkAuth((contextValue.headers.authorization).split(" ")[1]);
+                const item = await Item.findById(args.itemId);
+
+                if(user){
+                    const itemWasFound = user.desireList.find(elem => elem.itemId.valueOf() === item._id.valueOf());
+                    
+                    const changedDesireList = itemWasFound ? user.desireList.filter(desireItem => desireItem.itemId.valueOf() !== item._id.valueOf()) : [...user.desireList, {
+                        price: item.price,
+                        itemId: item._id,
+                        imageUrl: item.imageUrl,
+                        title: item.title
+                    }]
+                    
+                    const userWithUpdatedDesireList = await User.updateOne({
+                        _id:user._id
+                    }, {
+                        desireList: changedDesireList
+                    },);
+                    
+                    
+                    if(userWithUpdatedDesireList) return "DesireList was update";
+                    else return new GraphQLError("DesireList was not update");
+                } else{
+                    return new GraphQLError("User or Item not found");
+                } 
             }
         },
         clearBucket: {

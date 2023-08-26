@@ -4,10 +4,19 @@ const { GraphQLObjectType, GraphQLString, GraphQLID, GraphQLList,GraphQLInt,Grap
 const BucketItem = new GraphQLObjectType({
     name:'BucketItem',
     fields: () => ({
-        userId: { type: GraphQLID },
         price: { type:GraphQLInt },
         itemId: { type: GraphQLID },
         count: { type:GraphQLInt },
+        imageUrl: { type:GraphQLString },
+        title: { type:GraphQLString },
+    })
+})
+
+const DesireItem = new GraphQLObjectType({
+    name:'DesireItem',
+    fields: () => ({
+        price: { type:GraphQLInt },
+        itemId: { type: GraphQLID },
         imageUrl: { type:GraphQLString },
         title: { type:GraphQLString },
     })
@@ -23,6 +32,7 @@ module.exports = new GraphQLObjectType({
         token: { type:GraphQLString },
         role: { type:GraphQLString },
         bucket: { type: new GraphQLList(BucketItem)},
+        desireList: { type: new GraphQLList(DesireItem)},
         phone: {type: GraphQLString},
     })
 })
