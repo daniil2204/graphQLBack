@@ -95,16 +95,21 @@ module.exports = new GraphQLObjectType({
             },
             async resolve(parent,args,contextValue) {
                 const user = await checkAuth((contextValue.headers.authorization).split(" ")[1]);
+
                 if(user){
+                    const time = new Date();
+                    const month = ['січня', 'лютого', 'березня', 'квітня', 'травня', 'червня', 'липня', 'серпня', 'вересня', 'жовтня', 'листопада', 'грудня'][time.getMonth()];
                     const review = {
                         username: user.username,
                         text: args.text,
+                        createdAt: `${time.getDate()} ${month} ${time.getFullYear()}`
                     }
+
                     const item = await Item.findById(args.id);
                     const newItem = await Item.updateOne({
                         _id:args.id
                     }, {
-                        reviews: [...item.reviews,review]
+                        reviews: [review,...item.reviews]
                     },);
                     if(newItem) return "Review was added";
                     else return new GraphQLError("Review was not added");

@@ -9,6 +9,14 @@ const ReviewItem = new GraphQLObjectType({
     })
 })
 
+const CharacteristicItem = new GraphQLObjectType({
+    name:'Characteristic',
+    fields: () => ({
+        username: { type: GraphQLString },
+        text: { type: GraphQLString },
+    })
+})
+
 module.exports = new GraphQLObjectType({
     name:'Item',
     fields: () => ({
@@ -18,6 +26,7 @@ module.exports = new GraphQLObjectType({
         price: { type:GraphQLInt },
         imageUrl: { type:GraphQLString },
         reviews: { type: new GraphQLList(ReviewItem) },
+        infoAbout: {type: new GraphQLList(CharacteristicItem) },
     })
 })
 
