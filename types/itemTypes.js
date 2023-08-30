@@ -6,6 +6,7 @@ const ReviewItem = new GraphQLObjectType({
     fields: () => ({
         username: { type: GraphQLString },
         text: { type: GraphQLString },
+        createdAt: { type: GraphQLString },
     })
 })
 

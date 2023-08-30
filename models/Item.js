@@ -19,7 +19,7 @@ const ItemSchema = new Schema({
         default: []
     },
     infoAbout: {
-        type:Object,
+        type:Array,
         default:''
     },
     category: {
