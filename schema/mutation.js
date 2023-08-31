@@ -6,10 +6,6 @@ const Category = require('../models/Category')
 
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-const { 
-    v1: uuidv1,
-    v4: uuidv4,
-} = require('uuid');
 
 const checkAdmin = require('../utils/checkAdmin')
 const checkAuth = require('../utils/checkAuth')
@@ -21,6 +17,7 @@ const UserType = require('../types/userTypes');
 const ItemType = require('../types/itemTypes');
 const CategoryType = require('../types/categoryTypes');
 
+const CharacteristicItem = require('../additionalTypes/CharacteristicItem')
 
 
 module.exports = new GraphQLObjectType({
@@ -33,6 +30,7 @@ module.exports = new GraphQLObjectType({
                 price: { type: new GraphQLNonNull(GraphQLInt) },
                 imageUrl: { type: new GraphQLNonNull(GraphQLString) },
                 category: { type: new GraphQLNonNull(new GraphQLList(GraphQLString)) },
+                infoAbout: { type: new GraphQLNonNull(new GraphQLList(CharacteristicItem)) },
             },      
             async resolve(parent,args,contextValue) {
                 if(await checkAdmin((contextValue.headers.authorization).split(" ")[1])) {
@@ -40,7 +38,8 @@ module.exports = new GraphQLObjectType({
                         title: args.title,
                         price: args.price,
                         imageUrl: args.imageUrl,
-                        category: args.category
+                        category: args.category,
+                        infoAbout: args.infoAbout
                     })
                     return item.save();
                 } else {

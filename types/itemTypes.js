@@ -1,19 +1,12 @@
 const graphql = require('graphql');
 const { GraphQLObjectType, GraphQLString, GraphQLID, GraphQLList, GraphQLInt } = graphql;
 
-const ReviewItem = new GraphQLObjectType({
-    name:'Review',
-    fields: () => ({
-        username: { type: GraphQLString },
-        text: { type: GraphQLString },
-        createdAt: { type: GraphQLString },
-    })
-})
+const ReviewItem = require('../additionalTypes/ReviewItem');
 
 const CharacteristicItem = new GraphQLObjectType({
     name:'Characteristic',
     fields: () => ({
-        username: { type: GraphQLString },
+        title: { type: GraphQLString },
         text: { type: GraphQLString },
     })
 })

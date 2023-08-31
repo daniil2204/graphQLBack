@@ -1,26 +1,8 @@
 const graphql = require('graphql');
-const { GraphQLObjectType, GraphQLString, GraphQLID, GraphQLList,GraphQLInt,Grap } = graphql;
+const { GraphQLObjectType, GraphQLString, GraphQLID, GraphQLList,GraphQLInt } = graphql;
 
-const BucketItem = new GraphQLObjectType({
-    name:'BucketItem',
-    fields: () => ({
-        price: { type:GraphQLInt },
-        itemId: { type: GraphQLID },
-        count: { type:GraphQLInt },
-        imageUrl: { type:GraphQLString },
-        title: { type:GraphQLString },
-    })
-})
-
-const DesireItem = new GraphQLObjectType({
-    name:'DesireItem',
-    fields: () => ({
-        price: { type:GraphQLInt },
-        itemId: { type: GraphQLID },
-        imageUrl: { type:GraphQLString },
-        title: { type:GraphQLString },
-    })
-})
+const BucketItem = require('../additionalTypes/BucketItem');
+const DesireItem = require('../additionalTypes/DesireItem');
 
 module.exports = new GraphQLObjectType({
     name:'User',
